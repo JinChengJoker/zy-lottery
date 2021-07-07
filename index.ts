@@ -1,22 +1,6 @@
 import axios from "axios";
 import fs from "fs";
 
-type Lottery = {
-  lotteryDrawNum: string;
-  lotteryDrawTime: string;
-  lotteryDrawResult: string;
-}
-
-type Pagination = {
-  pageNo: number,
-  pages: number,
-  pageSize: number,
-}
-
-interface LotteryValue extends Pagination {
-  list: Lottery[],
-}
-
 const lotteryWriteStream = fs.createWriteStream('./lottery.db')
 
 const fetch: (pagination: { pageSize: number, pageNo: number }) => Promise<void> = async ({pageSize, pageNo}) => {
