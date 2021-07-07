@@ -2,6 +2,8 @@ type Lottery = {
   lotteryDrawNum: string;
   lotteryDrawTime: string;
   lotteryDrawResult: string;
+  lotteryDrawFrontResult: string[],
+  lotteryDrawEndResult: string[],
 }
 
 type Pagination = {
