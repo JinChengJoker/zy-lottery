@@ -4,7 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.21.1"
+    "axios": "^0.21.1",
+    "commander": "^8.0.0"
   },
   "devDependencies": {
     "@types/node": "^16.0.0",
