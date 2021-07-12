@@ -1,7 +1,11 @@
 {
   "name": "zy-lottery",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "bin": {
+    "dlt": "dist/cli.js"
+  },
+  "files": ["dist/**/*.js"],
   "license": "MIT",
   "dependencies": {
     "axios": "^0.21.1",
