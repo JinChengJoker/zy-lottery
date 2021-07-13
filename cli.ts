@@ -1,22 +1,30 @@
 #!/usr/bin/env node
 
-import {program} from "commander";
-import {analyzeLotteryHistory} from "./index";
+import {Command} from "commander";
+import {fetchLotteryHistory, analyzeLotteryHistory} from "./index";
+
+const program = new Command();
 
 program
-  .option('-f, --front <front>', 'lottery front area')
-  .option('-e, --end <end>', 'lottery end area')
+  .version('1.0.0.')
+
+program
+  .command('fetch')
+  .description('fetch all history data of lottery')
+  .action(() => {
+    fetchLotteryHistory()
+  });
+
+program
+  .command('run')
+  .description('analyze the input data')
+  .requiredOption('-f, --front <front>', 'input lottery front area')
+  .option('-e, --end <end>', 'input lottery end area', '')
+  .action((options) => {
+    analyzeLotteryHistory({
+      lotteryFrontString: options.front,
+      lotteryEndString: options.end,
+    })
+  });
 
 program.parse(process.argv);
-
-const options = program.opts();
-
-let lotteryFrontString = ''
-let lotteryEndString = ''
-
-if (options.front) lotteryFrontString = options.front
-if (options.end) lotteryEndString = options.end
-
-analyzeLotteryHistory({
-  lotteryFrontString, lotteryEndString
-})

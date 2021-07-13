@@ -17,12 +17,22 @@ npm install -g zy-lottery
 yarn global add zy-lottery
 ```
 
+### 验证安装成功
+```shell
+dlt --version
+```
+
+### 下载大乐透历史数据
+```shell
+dlt fetch
+```
+
 ### 分析前区号码
 ```shell
-dlt -f '01 02 03 04 05'
+dlt run -f '01 02 03 04 05'
 ```
 
 ### 分析前区+后区号码
 ```shell
-dlt -f '01 02 03 04 05' -e '01 02 03'
+dlt run -f '01 02 03 04 05' -e '01 02 03'
 ```

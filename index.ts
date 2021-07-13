@@ -1,9 +1,18 @@
 import axios from "axios";
 import fs from "fs";
+import os from "os";
+import path from 'path'
 import readLine from "readline";
 
+const appDir = path.join(os.homedir(), '/AppData/local/zy-lottery');
+const dbPath = path.join(appDir, '/lottery.db');
+
 const fetchLotteryHistory = () => {
-  const lotteryWriteStream = fs.createWriteStream('./lottery.db')
+  if (fs.existsSync(appDir)) {
+    fs.mkdirSync(appDir)
+  }
+  console.log('正在下载数据...')
+  const lotteryWriteStream = fs.createWriteStream(dbPath)
   const fetch: (pagination: { pageSize: number, pageNo: number }) => Promise<void> = (
     async ({pageSize, pageNo}) => {
       const response = await axios.get(
@@ -34,6 +43,7 @@ const fetchLotteryHistory = () => {
             })
           } else {
             lotteryWriteStream.end()
+            console.log('下载完毕')
           }
         } else {
           console.log(errorMessage)
@@ -53,7 +63,7 @@ const analyzeLotteryHistory: (lottery: { lotteryFrontString: string; lotteryEndS
     const lotteryEnd = lotteryEndString.split(' ')
 
     const rl = readLine.createInterface({
-      input: fs.createReadStream('./lottery.db'),
+      input: fs.createReadStream(dbPath),
       crlfDelay: Infinity
     })
 
