@@ -13,11 +13,12 @@ type Pagination = {
 }
 
 interface LotteryValue extends Pagination {
-  list: Lottery[]
+  list: Lottery[],
+  total: number,
 }
 
 interface LotteryResponse {
   errorCode: string,
   errorMessage: string,
-  value: LotteryValue
+  value: LotteryValue,
 }

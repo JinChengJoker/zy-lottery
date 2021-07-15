@@ -6,18 +6,7 @@ import readLine from "readline";
 
 const appDir = path.join(os.homedir(), '/AppData/local/zy-lottery');
 const dbPath = path.join(appDir, '/lottery.db');
-
-// const verifyLocalDatabase = async () => {
-//   console.log(fs.existsSync(dbPath))
-//   // 检查数据库文件是否存在
-//   if (fs.existsSync(dbPath)) {
-//     // 1、如果存在，就检查文件的行数，和API获取的总数对比，获取缺失的数据
-//     await fetchLotteryHistory({pageSize: 1, pageNo: 1})
-//   } else {
-//     // 2、如果不存在，就创建数据库文件并获取所有数据
-//     fs.mkdirSync(appDir)
-//   }
-// }
+const checkPath = path.join(appDir, '.check');
 
 const fetchLotteryHistory: (pagination: { pageSize: number, pageNo: number }) => Promise<LotteryValue> =
   async ({pageSize, pageNo}) => {
@@ -33,6 +22,26 @@ const fetchLotteryHistory: (pagination: { pageSize: number, pageNo: number }) =>
       throw new Error(errorMessage)
     }
   }
+
+// const verifyLocalDatabase = async () => {
+//   console.log(fs.existsSync(dbPath))
+//   // 检查数据库文件是否存在
+//   if (fs.existsSync(dbPath)) {
+//     // 1、如果存在，就检查文件的行数，和API获取的总数对比，获取缺失的数据
+//     const lotteryValue = await fetchLotteryHistory({pageSize: 1, pageNo: 1})
+//     console.log(lotteryValue)
+//     const check = fs.readFileSync(checkPath, {flag: 'a+'}).toString()
+//     console.log(check)
+//     if (parseInt(check) !== lotteryValue.total) {
+//       console.log('need update')
+//     }
+//   } else {
+//     // 2、如果不存在，就创建数据库文件并获取所有数据
+//     fs.mkdirSync(appDir)
+//   }
+// }
+//
+// void verifyLocalDatabase()
 
 const writeLotteryHistoryToDatabase = () => {
   console.log('正在下载数据...')
@@ -52,8 +61,9 @@ const writeLotteryHistoryToDatabase = () => {
       }\n`)
     })
     if (pageNo < lotteryValue.pages) {
-      fetchAndWrite(pageNo + 1)
+      fetchAndWrite(pageSize, pageNo + 1)
     } else {
+      fs.writeFileSync(checkPath, lotteryValue.total.toString())
       lotteryWriteStream.end()
       console.log('下载完毕')
     }
@@ -78,10 +88,10 @@ const analyzeLotteryHistory: (lottery: { lotteryFrontString: string; lotteryEndS
       const lotteryLine: Lottery = JSON.parse(line)
       const front: string[] = []
       const end: string[] = []
-      lotteryLine.lotteryDrawFrontResult.forEach(i => {
+      lotteryLine.lotteryDrawFrontResult?.forEach(i => {
         if (lotteryFront.includes(i)) front.push(i)
       })
-      lotteryLine.lotteryDrawEndResult.forEach(i => {
+      lotteryLine.lotteryDrawEndResult?.forEach(i => {
         if (lotteryEnd.includes(i)) end.push(i)
       })
       if (front.length >= 4 || (front.length === 3 && end.length === 2)) {
