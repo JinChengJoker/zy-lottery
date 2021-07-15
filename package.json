@@ -1,6 +1,6 @@
 {
   "name": "zy-lottery",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "main": "dist/index.js",
   "bin": {
     "dlt": "dist/cli.js"
