@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import {Command} from "commander";
-import {fetchLotteryHistory, analyzeLotteryHistory} from "./index";
+import {writeLotteryHistoryToDatabase, analyzeLotteryHistory} from "./index";
 
 const program = new Command();
 
@@ -12,7 +12,7 @@ program
   .command('fetch')
   .description('fetch all history data of lottery')
   .action(() => {
-    fetchLotteryHistory()
+    writeLotteryHistoryToDatabase()
   });
 
 program

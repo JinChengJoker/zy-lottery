@@ -15,3 +15,9 @@ type Pagination = {
 interface LotteryValue extends Pagination {
   list: Lottery[]
 }
+
+interface LotteryResponse {
+  errorCode: string,
+  errorMessage: string,
+  value: LotteryValue
+}
