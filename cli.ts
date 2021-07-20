@@ -6,7 +6,7 @@ import {update, analyze} from "./index";
 const program = new Command();
 
 program
-  .version('1.0.0.')
+  .version('1.2.1')
 
 program
   .command('fetch')
