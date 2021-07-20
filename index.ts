@@ -23,56 +23,64 @@ const fetchLotteryHistory: (pagination: { pageSize: number, pageNo: number }) =>
     }
   }
 
-// const verifyLocalDatabase = async () => {
-//   console.log(fs.existsSync(dbPath))
-//   // 检查数据库文件是否存在
-//   if (fs.existsSync(dbPath)) {
-//     // 1、如果存在，就检查文件的行数，和API获取的总数对比，获取缺失的数据
-//     const lotteryValue = await fetchLotteryHistory({pageSize: 1, pageNo: 1})
-//     console.log(lotteryValue)
-//     const check = fs.readFileSync(checkPath, {flag: 'a+'}).toString()
-//     console.log(check)
-//     if (parseInt(check) !== lotteryValue.total) {
-//       console.log('need update')
-//     }
-//   } else {
-//     // 2、如果不存在，就创建数据库文件并获取所有数据
-//     fs.mkdirSync(appDir)
-//   }
-// }
-//
-// void verifyLocalDatabase()
-
-const writeLotteryHistoryToDatabase = () => {
-  console.log('正在下载数据...')
-  const lotteryWriteStream = fs.createWriteStream(dbPath)
-  const fetchAndWrite: (pageSize?: number, pageNo?: number) => void = async (pageSize = 100, pageNo = 1) => {
-    const lotteryValue = await fetchLotteryHistory({pageSize, pageNo})
-    lotteryValue.list.forEach(item => {
-      const lotteryDrawResultArray = item.lotteryDrawResult.split(' ')
-      lotteryWriteStream.write(`${
-        JSON.stringify({
-          lotteryDrawNum: item.lotteryDrawNum,
-          lotteryDrawTime: item.lotteryDrawTime,
-          lotteryDrawResult: item.lotteryDrawResult,
-          lotteryDrawFrontResult: lotteryDrawResultArray.slice(0, 5),
-          lotteryDrawEndResult: lotteryDrawResultArray.slice(5),
-        })
-      }\n`)
-    })
-    if (pageNo < lotteryValue.pages) {
-      fetchAndWrite(pageSize, pageNo + 1)
-    } else {
-      fs.writeFileSync(checkPath, lotteryValue.total.toString())
-      lotteryWriteStream.end()
-      console.log('下载完毕')
-    }
+const verifyLocalDatabase = async () => {
+  console.log('正在检查数据更新...')
+  if (!fs.existsSync(appDir)) {
+    fs.mkdirSync(appDir)
   }
-  fetchAndWrite()
+  const check = parseInt(fs.readFileSync(checkPath, {flag: 'a+'}).toString()) || 0
+  const lotteryValue = await fetchLotteryHistory({pageSize: 1, pageNo: 1})
+  if (check === lotteryValue.total) {
+    console.log('已是最新数据！')
+    return 0
+  } else {
+    return lotteryValue.total - check
+  }
 }
 
-const analyzeLotteryHistory: (lottery: { lotteryFrontString: string; lotteryEndString?: string }) => void =
-  ({lotteryFrontString, lotteryEndString = ''}) => {
+const writeLotteryHistoryToDatabase = (lotteryValue: LotteryValue) => {
+  const lotteryWriteStream = fs.createWriteStream(dbPath, {flags: 'a'})
+  lotteryValue.list.reverse().forEach(item => {
+    const lotteryDrawResultArray = item.lotteryDrawResult.split(' ')
+    lotteryWriteStream.write(`${
+      JSON.stringify({
+        lotteryDrawNum: item.lotteryDrawNum,
+        lotteryDrawTime: item.lotteryDrawTime,
+        lotteryDrawResult: item.lotteryDrawResult,
+        lotteryDrawFrontResult: lotteryDrawResultArray.slice(0, 5),
+        lotteryDrawEndResult: lotteryDrawResultArray.slice(5),
+      })
+    }\n`)
+  })
+  lotteryWriteStream.end()
+  fs.writeFileSync(checkPath, lotteryValue.total.toString())
+}
+
+const update = async () => {
+  const gap = await verifyLocalDatabase()
+  if (gap > 0) {
+    console.log('正在下载最新数据...')
+    const pages = Math.ceil(gap / 100)
+    const lastPageSize = gap % 100 || 100
+    const fetchAndWrite = async (pageNo: number = pages) => {
+      const lotteryValue = await fetchLotteryHistory({pageSize: 100, pageNo})
+      if (pageNo === pages) {
+        lotteryValue.list.splice(lastPageSize)
+      }
+      writeLotteryHistoryToDatabase(lotteryValue)
+      if (pageNo > 1) {
+        await fetchAndWrite(pageNo - 1)
+      } else {
+        console.log('数据已更新')
+      }
+    }
+    await fetchAndWrite()
+  }
+}
+
+const analyze: (lottery: { lotteryFrontString: string; lotteryEndString?: string }) => Promise<void> =
+  async ({lotteryFrontString, lotteryEndString = ''}) => {
+    await update()
     const lotteryFront = lotteryFrontString.split(' ')
     const lotteryEnd = lotteryEndString.split(' ')
     const rl = readLine.createInterface({
@@ -105,4 +113,4 @@ const analyzeLotteryHistory: (lottery: { lotteryFrontString: string; lotteryEndS
     })
   }
 
-export {writeLotteryHistoryToDatabase, analyzeLotteryHistory}
+export {update, analyze}

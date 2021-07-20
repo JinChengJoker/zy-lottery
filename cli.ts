@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import {Command} from "commander";
-import {writeLotteryHistoryToDatabase, analyzeLotteryHistory} from "./index";
+import {update, analyze} from "./index";
 
 const program = new Command();
 
@@ -11,8 +11,8 @@ program
 program
   .command('fetch')
   .description('fetch all history data of lottery')
-  .action(() => {
-    writeLotteryHistoryToDatabase()
+  .action(async () => {
+    await update()
   });
 
 program
@@ -20,8 +20,8 @@ program
   .description('analyze the input data')
   .requiredOption('-f, --front <front>', 'input lottery front area')
   .option('-e, --end <end>', 'input lottery end area', '')
-  .action((options) => {
-    analyzeLotteryHistory({
+  .action(async (options) => {
+    await analyze({
       lotteryFrontString: options.front,
       lotteryEndString: options.end,
     })
