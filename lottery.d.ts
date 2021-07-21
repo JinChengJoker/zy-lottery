@@ -1,3 +1,8 @@
+declare module "*.json" {
+  const value: any;
+  export default value;
+}
+
 type Lottery = {
   lotteryDrawNum: string;
   lotteryDrawTime: string;

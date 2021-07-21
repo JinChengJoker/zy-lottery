@@ -2,11 +2,12 @@
 
 import {Command} from "commander";
 import {update, analyze} from "./index";
+import pkg from 'package.json'
 
 const program = new Command();
 
 program
-  .version('1.2.1')
+  .version(pkg.version)
 
 program
   .command('fetch')
