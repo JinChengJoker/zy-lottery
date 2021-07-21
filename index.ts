@@ -78,11 +78,9 @@ const update = async () => {
   }
 }
 
-const analyze: (lottery: { lotteryFrontString: string; lotteryEndString?: string }) => Promise<void> =
-  async ({lotteryFrontString, lotteryEndString = ''}) => {
+const analyze: (lottery: { frontArray: string[]; endArray?: string[] }) => Promise<void> =
+  async ({frontArray, endArray = []}) => {
     await update()
-    const lotteryFront = lotteryFrontString.split(' ')
-    const lotteryEnd = lotteryEndString.split(' ')
     const rl = readLine.createInterface({
       input: fs.createReadStream(dbPath),
       crlfDelay: Infinity
@@ -97,10 +95,10 @@ const analyze: (lottery: { lotteryFrontString: string; lotteryEndString?: string
       const front: string[] = []
       const end: string[] = []
       lotteryLine.lotteryDrawFrontResult?.forEach(i => {
-        if (lotteryFront.includes(i)) front.push(i)
+        if (frontArray.includes(i)) front.push(i)
       })
       lotteryLine.lotteryDrawEndResult?.forEach(i => {
-        if (lotteryEnd.includes(i)) end.push(i)
+        if (endArray.includes(i)) end.push(i)
       })
       if (front.length >= 4 || (front.length === 3 && end.length === 2)) {
         console.log(`${lotteryLine.lotteryDrawTime} 第${lotteryLine.lotteryDrawNum}期 ${front.join(' ')} ${end.length ? `+ ${end.join(' ')}` : ''}`)

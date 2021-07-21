@@ -1,6 +1,6 @@
 {
   "name": "zy-lottery",
-  "version": "1.2.2",
+  "version": "1.3.0",
   "description": "基于 Node.js 分析体彩大乐透历史开奖数据的命令行工具。",
   "keywords": ["Node.js", "lottery"],
   "homepage": "https://github.com/JinChengJoker/zy-lottery",
